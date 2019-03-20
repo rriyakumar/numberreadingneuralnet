@@ -1,0 +1,35 @@
+import tensorflow as tf
+
+mnist = tf.keras.datasets.mnist #28 by 28 images of handwritten digits
+
+(x_train, y_train), (x_test, y_test) = mnist.load_data()
+
+x_train = tf.keras.utils.normalize(x_train, axis=1)
+x_test = tf.keras.utils.normalize(x_test, axis=1)
+#we redefined x test and x train to be values between 0 and 1, scaling
+#helps the network learn
+
+model = tf.keras.models.Sequential()
+model.add(tf.keras.layers.Flatten())
+model.add(tf.keras.layers.Dense(128, activation=tf.nn.relu)) 
+#activation similar to sigmoid function, explains when the neuron is activated
+#Dense and Flatten are both Keras library layers, 128 indicates 128 neurons
+model.add(tf.keras.layers.Dense(128, activation=tf.nn.relu)) 
+model.add(tf.keras.layers.Dense(10, activation=tf.nn.softmax)) 
+#we can only have 10 outcomes, so change 128 to 0 and relu to softmax function
+
+#now training !!
+model.compile(optimizer='adam',
+             loss='sparse_categorical_crossentropy',
+             metrics=['accuracy'])
+model.fit(x_train,y_train, epochs=3)
+#loss is degree of error, neural net isn't looking to maximize accuracy but trying to minimize loss
+
+val_loss, val_acc = model.evaluate(x_test, y_test)
+print(val_loss, val_acc)
+model.save('numberreader.model')
+new_model = tf.keras.models.load_model('numberreader.model')
+predictions = new_model.predict([x_test])
+print(predictions)
+import numpy as np
+print(np.argmax(predictions[0]))
